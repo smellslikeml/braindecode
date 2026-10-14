@@ -551,6 +551,7 @@ models_mandatory_parameters: list[
     ("BDTCN", ["n_chans", "n_outputs"], None),
     ("Deep4Net", ["n_chans", "n_outputs", "n_times"], None),
     ("DeepSleepNet", ["n_chans", "n_outputs", "n_times"], None),
+    ("IITNet", ["n_chans", "n_outputs", "n_times"], None),
     ("EEGConformer", ["n_chans", "n_outputs", "n_times"], None),
     ("EEGCLIP", ["n_chans", "n_outputs", "n_times"], None),
     ("EEGInceptionERP", ["n_chans", "n_outputs", "n_times", "sfreq"], None),

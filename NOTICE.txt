@@ -57,6 +57,9 @@ The following components are licensed under the MIT License:
 - `braindecode/models/tmsanet.py`
 - `braindecode/models/epint.py`
 - `braindecode/models/gcnsnet.py`
+- `braindecode/models/iitnet.py`
+
+The `iitnet.py` file is a derivative of `gist-ailab/IITNet-official` (MIT).
 
 The `brainomni.py` file is a derivative of `OpenTSLab/BrainOmni` (MIT), whose
 SEANet codec derives from Meta's `facebookresearch/encodec` (MIT). The
