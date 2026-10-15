@@ -28,6 +28,13 @@ Current 1.8.1 (2026-08-31)
 Enhancements
 ============
 
+- Add :class:`braindecode.models.IITNet`, a port of IITNet (Seo et al., Biomedical
+  Signal Processing and Control 2020, `arXiv:1902.06562 <https://arxiv.org/abs/1902.06562>`_):
+  a sleep-staging model combining an intra-epoch 1-D ResNet feature extractor
+  with an inter-epoch two-layer bidirectional LSTM, adapted to braindecode's
+  single-window ``(batch, n_chans, n_times)`` interface as
+  :class:`braindecode.models.DeepSleepNet` is, reimplemented device-agnostic
+  from the MIT-licensed reference implementation (:gh:`1394`).
 - The DANCE event-detection tutorial evaluates the published checkpoint and explains that its reported subject-3 score was used for epoch selection, not independent testing (:gh:`1406` by `Bruno Aristimunha`_).
 
 - :class:`braindecode.models.NeuroRVQ` takes an input at another integer sampling rate and resamples it to the modality's rate (EEG 200 Hz) inside the model with :class:`torchaudio.transforms.Resample`, with a warning, instead of raising; and ``on_missing="drop"`` leaves out input channels with no pretrained slot (default ``"error"``). At 200 Hz with known channels the model and its output are unchanged. :class:`braindecode.models.EEGCLIP` keeps its BatchNorm layers on running statistics for a single-example batch in train mode, as the other BatchNorm models do (:gh:`1402` by `Bruno Aristimunha`_).
