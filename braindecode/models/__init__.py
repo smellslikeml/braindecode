@@ -45,6 +45,7 @@ from .gcnsnet import GCNsNet
 from .guetschel2026 import Guetschel2026
 from .hybrid import HybridNet
 from .ifnet import IFNet
+from .iitnet import IITNet
 from .labram import Labram
 from .luna import LUNA
 from .mapa import MAPA
@@ -150,6 +151,7 @@ __all__ = [
     "MetaNeuromotorHand",
     "HybridNet",
     "IFNet",
+    "IITNet",
     "Labram",
     "LUNA",
     "extract_channel_locations_from_chs_info",

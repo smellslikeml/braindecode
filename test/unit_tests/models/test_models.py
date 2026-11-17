@@ -63,6 +63,7 @@ from braindecode.models import (
     GCNsNet,
     HybridNet,
     IFNet,
+    IITNet,
     Labram,
     MEDFormer,
     MetaNeuromotorHand,
@@ -1563,6 +1564,107 @@ def test_deepsleepnet_custom_cnn_params():
 def test_deepsleepnet_too_small_ntimes():
     with pytest.raises(ValueError, match="n_times=10 is too small"):
         DeepSleepNet(n_chans=1, n_outputs=5, n_times=10)
+
+
+@pytest.mark.parametrize("n_classes", [5, 4, 2])
+def test_iitnet(n_classes):
+    n_channels = 1
+    sfreq = 100
+    input_size_s = 30
+    n_examples = 10
+
+    model = IITNet(
+        n_outputs=n_classes, return_feats=False,
+        n_chans=n_channels, n_times=int(np.ceil(input_size_s * sfreq)),
+    )
+    model.eval()
+
+    rng = np.random.RandomState(42)
+    X = rng.randn(n_examples, n_channels,
+                  int(np.ceil(input_size_s * sfreq)))
+    X = torch.from_numpy(X.astype(np.float32))
+
+    y_pred1 = model(X)  # 3D inputs
+    y_pred2 = model(X.unsqueeze(1))  # 4D inputs
+    assert y_pred1.shape == (n_examples, n_classes)
+    assert y_pred2.shape == (n_examples, n_classes)
+    np.testing.assert_allclose(
+        y_pred1.detach().cpu().numpy(),
+        y_pred2.detach().cpu().numpy()
+    )
+
+
+def test_iitnet_feats():
+    n_channels = 1
+    sfreq = 100
+    input_size_s = 30
+    n_classes = 3
+    n_examples = 10
+
+    model = IITNet(
+        n_outputs=n_classes, return_feats=True,
+        n_chans=n_channels, n_times=int(sfreq * input_size_s),
+    )
+    model.eval()
+
+    rng = np.random.RandomState(42)
+    X = rng.randn(n_examples, n_channels, int(sfreq * input_size_s))
+    X = torch.from_numpy(X.astype(np.float32))
+
+    out = model(X)
+    assert out.shape == (n_examples, model.len_last_layer)
+
+
+@pytest.mark.parametrize(
+    "n_chans, n_times, n_outputs",
+    [
+        (2, 3000, 5),
+        (22, 1000, 3),
+        (1, 500, 1),
+    ],
+)
+def test_iitnet_variable_input(n_chans, n_times, n_outputs):
+    # iitnet should work with different input shapes not just 1ch 3000t
+    model = IITNet(
+        n_chans=n_chans, n_outputs=n_outputs, n_times=n_times,
+    )
+    model.eval()
+    x = torch.randn(2, n_chans, n_times)
+    out = model(x)
+    assert out.shape == (2, n_outputs)
+
+
+@pytest.mark.parametrize(
+    "resnet_num_layers, expected_block",
+    [(18, "BasicBlock"), (50, "Bottleneck")],
+)
+def test_iitnet_block_type_follows_depth(resnet_num_layers, expected_block):
+    model = IITNet(
+        n_chans=1, n_outputs=5, n_times=3000,
+        resnet_num_layers=resnet_num_layers,
+    )
+    block = model.layer1[0]
+    assert type(block).__name__ == f"_{expected_block}1d"
+    model.eval()
+    with torch.no_grad():
+        assert model(torch.randn(2, 1, 3000)).shape == (2, 5)
+
+
+def test_iitnet_unidirectional():
+    model = IITNet(
+        n_chans=1, n_outputs=5, n_times=3000, bidirectional=False,
+    )
+    assert model.len_last_layer == model.bilstm_hidden_size
+    model.eval()
+    with torch.no_grad():
+        assert model(torch.randn(2, 1, 3000)).shape == (2, 5)
+
+
+def test_iitnet_invalid_configuration():
+    with pytest.raises(ValueError, match="supported ResNet depths"):
+        IITNet(n_chans=1, n_outputs=5, n_times=3000, resnet_num_layers=20)
+    with pytest.raises(ValueError, match="one width per residual stage"):
+        IITNet(n_chans=1, n_outputs=5, n_times=3000, stage_planes=(16, 16, 32))
 
 
 @pytest.fixture
