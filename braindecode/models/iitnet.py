@@ -105,7 +105,7 @@ class IITNet(EEGModuleMixin, nn.Module, license="mit"):
     .. [Seo2020IITNet] Seo, H., Kang, H., Choi, H., & Park, H. (2020).
        Intra- and inter-epoch temporal context network (IITNet) for automatic
        sleep scoring on raw single-channel EEG. Biomedical Signal Processing
-       and Control, 61, 103797.
+       and Control, 61, 102037.
        https://arxiv.org/abs/1902.06562
     """
 
